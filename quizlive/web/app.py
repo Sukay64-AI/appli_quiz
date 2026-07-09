@@ -152,8 +152,12 @@ def create_app(service: QuizService, hub: Hub, secret_key: str, host_key: str) -
 
     @app.get("/api/qr.svg")
     async def qr(request: Request) -> Response:
-        svg = segno.make(_join_url(request), error="m").svg_inline(scale=8)
-        return Response(content=svg, media_type="image/svg+xml")
+        import io
+        buf = io.BytesIO()
+        segno.make(_join_url(request), error="m").save(
+            buf, kind="svg", scale=8, xmldecl=False
+        )
+        return Response(content=buf.getvalue(), media_type="image/svg+xml")
 
     # --- API host, protegee ---
 
