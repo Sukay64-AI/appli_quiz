@@ -378,7 +378,7 @@ function render(s){{
     '<p id="votesLine">'+(s.votes!==undefined ? 'Votes : '+s.votes+' / '+s.participants
                           : 'Participants : '+s.participants)+'</p>' +
     '<p class="mut">Suivez votre PowerPoint. Ouvrez a la slide question, fermez avant la slide revelation.</p>';
-  document.getElementById("bOpen").disabled  = !(s.phase==="LOBBY" || s.phase==="CLOSED");
+  document.getElementById("bOpen").disabled  = !(s.phase==="LOBBY" || (s.phase==="CLOSED" && !s.is_last));
   document.getElementById("bClose").disabled = !(s.phase==="OPEN");
   document.getElementById("bFinish").disabled= !(s.phase==="CLOSED");
 }}

@@ -156,10 +156,13 @@ class QuizService:
 
     def present_state(self, join_url: str) -> dict:
         phase = self._quiz.phase
+        idx = self._quiz.current_index
+        is_last = idx is not None and idx >= len(self._quiz.questions) - 1
         state: dict = {
             "phase": PHASE_NAMES[phase],
             "participants": self._quiz.participants_count(),
             "quiz_id": self._quiz.id,
+            "is_last": is_last,
         }
         if phase is Phase.LOBBY:
             counts = self._quiz.participants_by_team()
