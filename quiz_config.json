@@ -1,0 +1,61 @@
+{
+  "quiz_id": "xtra-game-2026",
+  "_note": "Fichier editable. labels = texte des boutons sur les telephones. correct_option = index 0-base dans labels. A VERIFIER avant le jour J, surtout q0/q1/q2 (marquees _todo).",
+  "teams": [
+    { "id": "rotor",  "name": "Rotor" },
+    { "id": "stator", "name": "Stator" },
+    { "id": "nozzle", "name": "Nozzle" },
+    { "id": "plenum", "name": "Plenum" },
+    { "id": "volute", "name": "Volute" }
+  ],
+  "questions": [
+    {
+      "id": "q0",
+      "order": 0,
+      "labels": ["A", "B", "Les deux", "Aucun"],
+      "correct_option":3,
+      "time_limit_s": 30,
+      "_todo": "warm-up visages, auncun"
+    },
+    {
+      "id": "q1",
+      "order": 1,
+      "labels": ["A", "B", "Les deux", "Aucun"],
+      "correct_option": 0,
+      "time_limit_s": 30,
+      "_todo": "critere Lindqvist-Moreau fictif : Faux attendu,  reponse A"
+    },
+    {
+      "id": "q2",
+      "order": 2,
+      "labels": ["A", "B", "Les deux", "Aucun"],
+      "correct_option": 0,
+      "time_limit_s": 30,
+      "_todo": "AI ou CFD : reponse A"
+    },
+    {
+      "id": "q3",
+      "order": 3,
+      "labels": ["~1%", "~5%", "~15%", "~25%"],
+      "correct_option": 3,
+      "time_limit_s": 30,
+      "_todo": "erreur attendu : reponse 25%"      
+    },
+    {
+      "id": "q4",
+      "order": 4,
+      "labels": ["Parametres identiques", "Parametres different", "IA vs CFD"],
+      "correct_option": 0,
+      "time_limit_s": 30,
+      "_todo": "parametres identiques, Seed"
+    },
+    {
+      "id": "q5",
+      "order": 5,
+      "labels": ["Oui", "Non"],
+      "correct_option": 0,
+      "time_limit_s": 30,
+      "_todo": "TBC si on a le temps"
+    }
+  ]
+}
