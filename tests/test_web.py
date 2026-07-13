@@ -52,7 +52,9 @@ def client(tmp_path) -> TestClient:
 
 
 def _join(client: TestClient, nick: str, team: str) -> None:
-    r = client.post("/api/join", json={"nickname": nick, "team_id": team})
+    # jonction anonyme : seul team_id compte, nick conserve en parametre
+    # pour la lisibilite des tests mais non transmis
+    r = client.post("/api/join", json={"team_id": team})
     assert r.status_code == 200, r.text
 
 
@@ -72,13 +74,13 @@ def test_join_pose_cookie_et_state_personnalise(client: TestClient) -> None:
     _join(client, "Alice", "rotor")
     s = client.get("/api/state").json()
     assert s["registered"] is True
-    assert s["me"]["nickname"] == "Alice"
+    assert s["me"]["nickname"] == ""
     assert s["me"]["team"] == "Rotor"
 
 
-def test_join_pseudo_trop_court(client: TestClient) -> None:
-    r = client.post("/api/join", json={"nickname": "A", "team_id": "rotor"})
-    assert r.status_code == 400
+def test_join_anonyme_accepte(client: TestClient) -> None:
+    r = client.post("/api/join", json={"team_id": "rotor"})
+    assert r.status_code == 200
 
 
 def test_join_equipe_inconnue(client: TestClient) -> None:

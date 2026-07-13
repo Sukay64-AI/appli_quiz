@@ -91,7 +91,7 @@ function render(s){{
   var el = document.getElementById("app");
   if(!s.registered){{ el.innerHTML = joinForm(s); return; }}
 
-  var head = '<div class="mut">'+esc(s.me.nickname)+' . equipe '+esc(s.me.team)+
+  var head = '<div class="mut">Equipe <b>'+esc(s.me.team)+'</b>' +
              ' . total <b>'+s.me.total+'</b></div>';
 
   if(s.phase==="LOBBY"){{
@@ -183,8 +183,7 @@ function joinForm(s){{
     return '<button onclick="pick(\\''+t.id+'\\', this)" data-t="'+t.id+'">'+esc(t.name)+'</button>';
   }}).join("");
   return '<p><b>Rejoindre le quiz</b></p>' +
-    '<p><input type="text" id="nick" maxlength="20" placeholder="Ton prenom ou pseudo"></p>' +
-    '<p class="mut">Choisis ton equipe :</p>' + teams +
+    '<p class="mut">Participation anonyme. Choisis ton equipe :</p>' + teams +
     '<div class="panel" style="font-size:.85rem">' +
     'En rejoignant, un cookie strictement necessaire est depose sur ce navigateur. ' +
     'Raison : retrouver ta session si la connexion coupe (wifi instable, veille du telephone). ' +
@@ -197,20 +196,14 @@ function pick(tid, btn){{
   pickedTeam=tid;
   document.querySelectorAll("button[data-t]").forEach(function(b){{ b.classList.remove("sel"); }});
   btn.classList.add("sel");
-  maybeEnable();
-}}
-document.addEventListener("input", maybeEnable);
-function maybeEnable(){{
-  var n=document.getElementById("nick"); var g=document.getElementById("go");
-  if(n && g) g.disabled = !(n.value.trim().length>=2 && pickedTeam);
+  var g=document.getElementById("go"); if(g) g.disabled=false;
 }}
 
 async function join(){{
-  var nick=document.getElementById("nick").value.trim();
   try {{
     var r = await fetch("/api/join", {{method:"POST",
       headers:{{"Content-Type":"application/json"}},
-      body: JSON.stringify({{nickname:nick, team_id:pickedTeam}})}});
+      body: JSON.stringify({{team_id:pickedTeam}})}});
     if(r.ok){{ refresh(); }}
     else {{ var d=await r.json(); alert(d.detail || "Erreur"); }}
   }} catch(e) {{ alert("Reseau indisponible, reessaie."); }}

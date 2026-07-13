@@ -87,10 +87,7 @@ def create_app(service: QuizService, hub: Hub, secret_key: str, host_key: str) -
     @app.post("/api/join")
     async def join(request: Request, response: Response) -> dict:
         body = await request.json()
-        nickname = str(body.get("nickname", "")).strip()[:20]
         team_id = str(body.get("team_id", ""))
-        if len(nickname) < 2:
-            return JSONResponse({"detail": "pseudo trop court"}, status_code=400)
 
         existing = _pid(request)
         if existing and service.player_state(existing)["registered"]:
@@ -98,7 +95,7 @@ def create_app(service: QuizService, hub: Hub, secret_key: str, host_key: str) -
 
         participant_id = security.new_participant_id()
         try:
-            service.join(participant_id, team_id, nickname, token="cookie")
+            service.join(participant_id, team_id, nickname="", token="cookie")
         except UnknownTeam:
             return JSONResponse({"detail": "equipe inconnue"}, status_code=400)
         except InvalidTransition:
