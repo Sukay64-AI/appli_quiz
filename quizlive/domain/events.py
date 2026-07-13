@@ -47,3 +47,8 @@ class QuestionClosed(DomainEvent):
 @dataclass(frozen=True)
 class QuizFinished(DomainEvent):
     pass
+
+
+@dataclass(frozen=True)
+class QuizReset(DomainEvent):
+    pass

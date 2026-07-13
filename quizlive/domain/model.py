@@ -38,6 +38,7 @@ from quizlive.domain.events import (
     QuestionClosed,
     QuestionOpened,
     QuizFinished,
+    QuizReset,
 )
 from quizlive.domain.ports import Clock
 from quizlive.domain.scoring import ScoringPolicy
@@ -271,6 +272,17 @@ class Quiz:
             raise InvalidTransition(f"finish interdit depuis {self._phase.name}")
         self._phase = Phase.FINISHED
         self._emit(QuizFinished())
+
+    def reset(self) -> None:
+        """Remet le quiz a zero : retour en LOBBY, participants, votes et scores
+        effaces. Autorise depuis n'importe quelle phase. Sert entre la
+        repetition et la vraie session, ou pour repartir proprement."""
+        self._phase = Phase.LOBBY
+        self._current_index = None
+        self._opened_at = None
+        self._participants.clear()
+        self._answers.clear()
+        self._emit(QuizReset())
 
     # --- vote ---
 

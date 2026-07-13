@@ -349,6 +349,10 @@ def host_page() -> str:
   <button id="bFinish" onclick="act('finish')">Terminer le quiz</button>
   <p class="mut" id="msg"></p>
 </div>
+<div class="panel">
+  <button id="bReset" style="background:#5a1e1e" onclick="doReset()">Recommencer a zero</button>
+  <p class="mut">Efface participants et scores, retour au lobby. Demande confirmation.</p>
+</div>
 <div class="dotline"><span id="dot"></span><span>temps reel</span></div>
 </div>
 <script>
@@ -389,6 +393,17 @@ async function act(a){{
     var r = await fetch("/api/host/"+a+"?key="+encodeURIComponent(KEY), {{method:"POST"}});
     var d = await r.json();
     if(!r.ok){{ m.textContent = d.detail || "refuse"; }}
+  }} catch(e) {{ m.textContent = "reseau indisponible"; }}
+}}
+
+async function doReset(){{
+  if(!confirm("Tout effacer et revenir au lobby ? Participants et scores seront perdus.")) return;
+  var m=document.getElementById("msg"); m.textContent="";
+  try {{
+    var r = await fetch("/api/host/reset?key="+encodeURIComponent(KEY), {{method:"POST"}});
+    var d = await r.json();
+    if(!r.ok){{ m.textContent = d.detail || "refuse"; }}
+    else {{ m.textContent = "Quiz remis a zero."; }}
   }} catch(e) {{ m.textContent = "reseau indisponible"; }}
 }}
 {_WS_JS}

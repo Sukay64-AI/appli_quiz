@@ -68,6 +68,10 @@ class QuizService:
         self._quiz.finish()
         self._quiz.collect_events()
 
+    def reset(self) -> None:
+        self._quiz.reset()
+        self._quiz.collect_events()
+
     async def notify_update(self) -> None:
         await self._hub.broadcast({"type": "update"})
 

@@ -153,6 +153,7 @@ def create_app(service: QuizService, hub: Hub, secret_key: str, host_key: str) -
     @app.get("/api/qr.svg")
     async def qr(request: Request) -> Response:
         import io
+
         buf = io.BytesIO()
         segno.make(_join_url(request), error="m").save(
             buf, kind="svg", scale=8, xmldecl=False
@@ -189,6 +190,14 @@ def create_app(service: QuizService, hub: Hub, secret_key: str, host_key: str) -
     @app.post("/api/host/finish")
     async def host_finish(request: Request):
         return await _host_action(request, service.finish)
+
+    @app.post("/api/host/reset")
+    async def host_reset(request: Request):
+        if not _check_key(request):
+            return JSONResponse({"detail": "cle host invalide"}, status_code=403)
+        service.reset()
+        await service.notify_update()
+        return {"status": "ok"}
 
     @app.get("/api/export")
     async def export(request: Request):
