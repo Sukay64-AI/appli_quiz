@@ -39,7 +39,7 @@ _BASE_CSS = """
   .lg { margin-right:1.4rem; white-space:nowrap; }
   .sw { display:inline-block; width:1rem; height:1rem; border-radius:3px; vertical-align:middle; margin-right:.35rem; }
   .drow { display:flex; align-items:center; gap:.7rem; margin:.5rem 0; }
-  .tn { width:150px; flex:none; color:var(--ink); font-weight:600; }
+  .tn { width:250px; flex:none; color:var(--ink); font-weight:600; line-height:1.15; font-size:.95rem; }
   .stack { flex:1; display:flex; height:2rem; border-radius:.35rem; overflow:hidden; background:#0d1117; }
   .seg { display:flex; align-items:center; justify-content:center; font-size:.9rem; color:#0b0f14; font-weight:800; box-sizing:border-box; min-width:0; }
 """
