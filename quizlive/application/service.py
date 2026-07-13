@@ -93,11 +93,47 @@ class QuizService:
             "remaining_s": remaining,
         }
 
+    def _questions_played(self) -> int:
+        """Nombre de questions deja jouees, pour le denominateur du pourcentage.
+        Une question ouverte non encore fermee ne compte pas."""
+        idx = self._quiz.current_index
+        if idx is None:
+            return 0
+        return idx if self._quiz.phase is Phase.QUESTION_OPEN else idx + 1
+
     def _leaderboard_block(self) -> list[dict]:
-        return [
-            {"name": ts.name, "avg": round(ts.avg_score, 1), "members": ts.members}
-            for ts in self._quiz.leaderboard()
-        ]
+        played = self._questions_played()
+        out = []
+        for ts in self._quiz.leaderboard():
+            pct = round(100.0 * ts.avg_score / played, 1) if played else 0.0
+            out.append({"name": ts.name, "pct": pct, "members": ts.members})
+        return out
+
+    def _distribution_block(self, question_id: str) -> dict:
+        """Repartition des votes par equipe et par option, en pourcentage.
+        C'est le visuel : chaque equipe, quel pourcentage a choisi chaque option,
+        la bonne option etant marquee."""
+        labels = self._labels[question_id]
+        question = next(q for q in self._quiz.questions if q.id == question_id)
+        n = len(labels)
+
+        def pcts(counts: dict[int, int], total: int) -> list[float]:
+            return [round(100.0 * counts[i] / total, 1) if total else 0.0 for i in range(n)]
+
+        glob = self._quiz.stats_global(question_id)
+        by_team = self._quiz.stats_by_team(question_id)
+        teams = []
+        for team in self._quiz.teams:
+            st = by_team[team.id]
+            teams.append({"name": team.name, "total": st.total, "pcts": pcts(st.counts, st.total)})
+        return {
+            "index": question.order,
+            "labels": labels,
+            "correct_index": question.correct_option,
+            "global": pcts(glob.counts, glob.total),
+            "global_total": glob.total,
+            "teams": teams,
+        }
 
     def _stats_blocks(self, question_id: str) -> tuple[dict, list[dict]]:
         glob = self._quiz.stats_global(question_id)
@@ -185,12 +221,19 @@ class QuizService:
                 state["stats"] = global_block
                 state["stats_by_team"] = teams_block
                 state["correct_label"] = self._labels[question.id][question.correct_option]
+                state["distribution"] = self._distribution_block(question.id)
 
         if phase in (Phase.QUESTION_CLOSED, Phase.FINISHED):
             state["leaderboard"] = self._leaderboard_block()
 
         if phase is Phase.FINISHED:
             state["per_question"] = self.per_question_summary()
+            last = self._quiz.current_index if self._quiz.current_index is not None else -1
+            state["per_question_dist"] = [
+                self._distribution_block(q.id)
+                for q in self._quiz.questions
+                if q.order <= last
+            ]
         return state
 
     def per_question_summary(self) -> list[dict]:

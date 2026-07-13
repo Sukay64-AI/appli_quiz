@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 
 from quizlive.application.service import QuizService
 from quizlive.domain.model import Quiz
-from quizlive.domain.scoring import DecliningSpeedScore
+from quizlive.domain.scoring import BinaryScore
 from quizlive.infra.config_loader import load_config
 from quizlive.infra.hub import Hub
 from quizlive.web.app import create_app
@@ -43,8 +43,7 @@ def client(tmp_path) -> TestClient:
     path.write_text(json.dumps(cfg), encoding="utf-8")
     config = load_config(path)
     clock = FakeClock()
-    quiz = Quiz(config.quiz_id, config.questions, config.teams, clock,
-                DecliningSpeedScore())
+    quiz = Quiz(config.quiz_id, config.questions, config.teams, clock, BinaryScore())
     hub = Hub()
     service = QuizService(quiz, clock, hub, config.labels)
     app = create_app(service, hub, secret_key="s3cret", host_key=HOST_KEY)
@@ -144,17 +143,21 @@ def test_revelation_apres_close(client: TestClient) -> None:
     s = client.get("/api/state").json()
     assert s["phase"] == "CLOSED"
     assert s["result"]["correct"] is True
-    assert s["result"]["score"] > 0
+    assert s["result"]["score"] == 1  # binaire
     assert s["result"]["correct_label"] == "B"
     assert s["stats"]["total"] == 1
     assert s["leaderboard"][0]["name"] == "Rotor"
+    assert s["leaderboard"][0]["pct"] == 100.0  # 1 bonne / 1 question jouee
 
     p = client.get("/api/present-state").json()
     assert p["correct_label"] == "B"
     assert p["stats"]["counts"] == [0, 1, 0]
-    names = {t["name"]: t for t in p["stats_by_team"]}
-    assert names["Rotor"]["pct"] == 100.0
-    assert names["Stator"]["total"] == 0
+    d = p["distribution"]
+    assert d["correct_index"] == 1
+    rotor = next(t for t in d["teams"] if t["name"] == "Rotor")
+    assert rotor["pcts"][1] == 100.0  # Rotor a mis 100% sur l'option B
+    stator = next(t for t in d["teams"] if t["name"] == "Stator")
+    assert stator["total"] == 0
 
 
 def test_flux_complet_jusqu_a_finished(client: TestClient) -> None:
@@ -183,8 +186,11 @@ def test_flux_complet_jusqu_a_finished(client: TestClient) -> None:
     _host(alice, "finish")
     p = alice.get("/api/present-state").json()
     assert p["phase"] == "FINISHED"
-    assert p["leaderboard"][0]["name"] == "Rotor"  # 2000 vs 1000 de moyenne
+    assert p["leaderboard"][0]["name"] == "Rotor"  # 100% vs 50%
+    assert p["leaderboard"][0]["pct"] == 100.0
     assert len(p["per_question"]) == 2
+    assert len(p["per_question_dist"]) == 2
+    assert p["per_question_dist"][0]["correct_index"] == 1
     assert p["per_question"][0]["teams"]["Rotor"] == 100.0
     assert p["per_question"][0]["teams"]["Stator"] == 0.0
 

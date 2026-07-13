@@ -43,3 +43,12 @@ class DecliningSpeedScore:
             raise ValueError("time_limit_s doit etre > 0")
         frac = min(1.0, max(0.0, elapsed_s / time_limit_s))
         return round(self.floor + (self.base - self.floor) * (1.0 - frac))
+
+
+@dataclass(frozen=True)
+class BinaryScore:
+    """Score binaire. Juste = 1, faux ou pas de reponse = 0. Le temps n'entre
+    pas en compte. Le classement se lira en pourcentage de bonnes reponses."""
+
+    def score(self, *, correct: bool, elapsed_s: float, time_limit_s: float) -> int:
+        return 1 if correct else 0

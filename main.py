@@ -21,7 +21,7 @@ import sys
 
 from quizlive.application.service import QuizService
 from quizlive.domain.model import Quiz
-from quizlive.domain.scoring import DecliningSpeedScore
+from quizlive.domain.scoring import BinaryScore
 from quizlive.infra.config_loader import SystemClock, load_config
 from quizlive.infra.hub import Hub
 from quizlive.web.app import create_app, generate_key
@@ -46,7 +46,7 @@ quiz = Quiz(
     questions=config.questions,
     teams=config.teams,
     clock=clock,
-    scoring=DecliningSpeedScore(base=1000, floor=500),
+    scoring=BinaryScore(),
 )
 hub = Hub()
 service = QuizService(quiz, clock, hub, config.labels)

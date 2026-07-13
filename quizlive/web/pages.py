@@ -35,6 +35,13 @@ _BASE_CSS = """
   table { border-collapse:collapse; width:100%; }
   td, th { text-align:left; padding:.3rem .5rem; border-bottom:1px solid #2c3540; }
   .r { text-align:right; }
+  .legend { margin:.5rem 0 1rem; font-size:1rem; line-height:1.9; }
+  .lg { margin-right:1.4rem; white-space:nowrap; }
+  .sw { display:inline-block; width:1rem; height:1rem; border-radius:3px; vertical-align:middle; margin-right:.35rem; }
+  .drow { display:flex; align-items:center; gap:.7rem; margin:.5rem 0; }
+  .tn { width:150px; flex:none; color:var(--ink); font-weight:600; }
+  .stack { flex:1; display:flex; height:2rem; border-radius:.35rem; overflow:hidden; background:#0d1117; }
+  .seg { display:flex; align-items:center; justify-content:center; font-size:.9rem; color:#0b0f14; font-weight:800; box-sizing:border-box; min-width:0; }
 """
 
 _WS_JS = """
@@ -58,6 +65,32 @@ _WS_JS = """
   document.addEventListener("visibilitychange", function(){
     if(!document.hidden){ refresh(); } });
   wsConnect();
+"""
+
+
+_DIST_JS = """
+function distColor(i){ return ['#4C9F70','#C9A227','#8BB2C2','#B5651D','#7E6BA8','#C05050'][i%6]; }
+function distEsc(s){ return String(s).replace(/[&<>\\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\\"':'&quot;',"'":'&#39;'}[c];}); }
+function distBlock(d){
+  if(!d) return '';
+  var legend = d.labels.map(function(l,i){
+    return '<span class="lg"><span class="sw" style="background:'+distColor(i)+'"></span>'+
+      distEsc(l)+(i===d.correct_index?' <b class="ok">(bonne)</b>':'')+'</span>';
+  }).join(' ');
+  var rows = d.teams.map(function(t){
+    if(t.total===0){
+      return '<div class="drow"><span class="tn">'+distEsc(t.name)+'</span><span class="mut">aucun vote</span></div>';
+    }
+    var segs = t.pcts.map(function(p,i){
+      if(p<=0) return '';
+      var lbl = p>=14 ? Math.round(p)+'%' : '';
+      var b = (i===d.correct_index) ? 'box-shadow:inset 0 0 0 3px #fff;' : '';
+      return '<span class="seg" style="width:'+p+'%;background:'+distColor(i)+';'+b+'">'+lbl+'</span>';
+    }).join('');
+    return '<div class="drow"><span class="tn">'+distEsc(t.name)+'</span><span class="stack">'+segs+'</span></div>';
+  }).join('');
+  return '<div class="legend">'+legend+'</div>'+rows;
+}
 """
 
 
@@ -121,7 +154,7 @@ function render(s){{
       if(!s.result.voted){{
         html += '<p class="big warn">Pas de vote.</p>';
       }} else if(s.result.correct){{
-        html += '<p class="big ok">Correct. +'+s.result.score+'</p>';
+        html += '<p class="big ok">Correct.</p>';
       }} else {{
         html += '<p class="big ko">Rate.</p>';
       }}
@@ -140,7 +173,7 @@ function render(s){{
 function lbTable(lb){{
   return '<table>'+lb.map(function(t,i){{
     return '<tr><td>'+(i+1)+'</td><td>'+esc(t.name)+'</td>'+
-      '<td class="r"><b>'+t.avg+'</b></td><td class="r mut">'+t.members+' pers.</td></tr>';
+      '<td class="r"><b>'+t.pct+' %</b></td><td class="r mut">'+t.members+' pers.</td></tr>';
   }}).join("")+'</table>';
 }}
 
@@ -260,7 +293,7 @@ function bars(counts, labels, correctLabel){{
 function lbTable(lb){{
   return '<table>'+lb.map(function(t,i){{
     return '<tr><td>'+(i+1)+'</td><td>'+esc(t.name)+'</td>'+
-      '<td class="r"><b>'+t.avg+'</b></td><td class="r mut">'+t.members+' pers.</td></tr>';
+      '<td class="r"><b>'+t.pct+' %</b></td><td class="r mut">'+t.members+' pers.</td></tr>';
   }}).join("")+'</table>';
 }}
 
@@ -292,25 +325,17 @@ function render(s){{
   }}
   if(s.phase==="CLOSED" || s.phase==="FINISHED"){{
     var html='';
-    if(s.question && s.stats){{
+    if(s.question && s.distribution){{
       html += '<h1>Question '+(s.question.index+1)+' . resultat</h1>' +
-        '<div class="cols"><div>' +
-        '<div class="panel bar">'+bars(s.stats.counts, s.question.labels, s.correct_label)+'</div>' +
         '<p>Bonne reponse : <b class="ok">'+esc(s.correct_label)+'</b>' +
-        ' . corrects : '+s.stats.correct+' / '+s.stats.total+'</p>' +
-        '<div class="panel"><b>Par equipe (% corrects)</b><table>' +
-        s.stats_by_team.map(function(t){{
-          return '<tr><td>'+esc(t.name)+'</td><td class="r">'+t.correct+'/'+t.total+
-                 '</td><td class="r"><b>'+t.pct+' %</b></td></tr>';
-        }}).join("") + '</table></div>' +
-        '</div><div>' +
-        '<div class="panel"><b>Classement</b>'+lbTable(s.leaderboard)+'</div>' +
-        '</div></div>';
+        ' . '+s.stats.correct+' / '+s.stats.total+' corrects</p>' +
+        '<div class="panel">'+distBlock(s.distribution)+'</div>' +
+        '<div class="panel"><b>Classement (% de reussite)</b>'+lbTable(s.leaderboard)+'</div>';
     }}
     if(s.phase==="FINISHED"){{
       html += '<h1>Classement final</h1>' +
         '<div class="panel">'+lbTable(s.leaderboard)+'</div>' +
-        '<div class="panel"><b>Corrects par question (%)</b><table>' +
+        '<div class="panel"><b>Reussite par question</b><table>' +
         '<tr><th>Q</th><th class="r">global</th>' +
         Object.keys(s.per_question[0].teams).map(function(n){{
           return '<th class="r">'+esc(n)+'</th>'; }}).join("") + '</tr>' +
@@ -318,12 +343,17 @@ function render(s){{
           return '<tr><td>Q'+row.index+'</td><td class="r"><b>'+row.pct+'</b></td>' +
             Object.values(row.teams).map(function(p){{
               return '<td class="r">'+p+'</td>'; }}).join("") + '</tr>';
-        }}).join("") + '</table></div>';
+        }}).join("") + '</table></div>' +
+        '<h1>Detail des reponses par equipe</h1>' +
+        (s.per_question_dist||[]).map(function(d){{
+          return '<div class="panel"><b>Question '+(d.index+1)+'</b>'+distBlock(d)+'</div>';
+        }}).join("");
     }}
     el.innerHTML = html;
     return;
   }}
 }}
+{_DIST_JS}
 {_WS_JS}
 </script></body></html>"""
 
