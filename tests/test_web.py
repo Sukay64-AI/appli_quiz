@@ -222,6 +222,19 @@ def test_websocket_sonnette(client: TestClient) -> None:
         assert msg["type"] in ("update", "votes", "hb")
 
 
+def test_join_declenche_refresh_present(client: TestClient) -> None:
+    # une jonction doit pousser un 'update' vers l'ecran present en temps reel
+    with client.websocket_connect("/ws/present") as ws:
+        client.post("/api/join", json={"team_id": "rotor"})
+        seen = None
+        for _ in range(5):
+            m = ws.receive_json()
+            if m["type"] == "update":
+                seen = m
+                break
+        assert seen is not None, "aucun message update recu apres jonction"
+
+
 def test_websocket_role_inconnu_refuse(client: TestClient) -> None:
     with pytest.raises(Exception):
         with client.websocket_connect("/ws/pirate"):

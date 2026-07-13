@@ -109,7 +109,7 @@ def create_app(service: QuizService, hub: Hub, secret_key: str, host_key: str) -
             samesite="lax",
             secure=(request.url.scheme == "https"),
         )
-        await service.notify_vote()  # met a jour le compteur de participants
+        await service.notify_roster()  # rafraichit l'ecran lobby, total et par equipe
         return {"status": "ok"}
 
     @app.get("/api/state")

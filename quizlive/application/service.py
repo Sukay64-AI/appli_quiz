@@ -75,6 +75,14 @@ class QuizService:
     async def notify_update(self) -> None:
         await self._hub.broadcast({"type": "update"})
 
+    async def notify_roster(self) -> None:
+        """Sur inscription : rafraichissement complet de l'ecran et du controle.
+        Un simple message 'votes' ne suffit pas, le lobby n'a pas de compteur de
+        votes, il faut re-rendre pour mettre a jour le total et le detail par
+        equipe. Cible present et host, pas les telephones, inutile de les
+        rafraichir a chaque jonction d'un tiers."""
+        await self._hub.broadcast({"type": "update"}, roles=("present", "host"))
+
     # --- lectures : DTOs ---
 
     def _question_block(self) -> dict | None:
