@@ -1,6 +1,6 @@
 {
   "quiz_id": "xtra-game-2026",
-  "_note": "Fichier editable. text = enonce court affiche sur les telephones et l'ecran (optionnel, A VERIFIER/adapter a tes slides). labels = texte des boutons. correct_option = index 0-base. A VERIFIER avant le jour J, surtout q0/q1/q2.",
+  "_note": "Fichier editable. text = enonce affiche sur telephones et ecran. labels = texte des boutons. correct_option = index 0-base dans labels. ATTENTION Q0 : la reformulation (lequel est IA-genere, au lieu de lequel est reel) peut inverser la reponse attendue entre Aucun (index 3) et Les deux (index 2). A verifier avant le jour J. Q1-Q4 : reponses deduites, a confirmer.",
   "teams": [
     { "id": "multi_physiques",      "name": "Multi-Physiques" },
     { "id": "perf_outils_dyn",      "name": "Performance Outils Dynamique" },
@@ -8,11 +8,10 @@
     { "id": "materiaux_procedes",   "name": "Matériaux et Procédés spéciaux" }
   ],
   "questions": [
-    { "id": "q0", "order": 0, "text": "Warm-up : quel(s) visage(s) est reel ?", "labels": ["A", "B", "Les deux", "Aucun"], "correct_option": 3, "time_limit_s": 30, "_todo": "warm-up visages, auncun" },
-    { "id": "q1", "order": 1, "text": "Le critere de Lindqvist-Moreau s'applique-t-il ici ?", "labels": ["A", "B", "Les deux", "Aucun"], "correct_option": 0, "time_limit_s": 30, "_todo": "critere Lindqvist-Moreau fictif : Faux attendu,  reponse A" },
-    { "id": "q2", "order": 2, "text": "Ce champ provient-il de l'IA ou du CFD ?", "labels": ["A", "B", "Les deux", "Aucun"], "correct_option": 0, "time_limit_s": 30, "_todo": "AI ou CFD : reponse A" },
-    { "id": "q3", "order": 3, "text": "Quelle erreur maximale attendez-vous ?", "labels": ["~1%", "~5%", "~15%", "~25%"], "correct_option": 3, "time_limit_s": 30, "_todo": "erreur attendu : reponse 25%" },
-    { "id": "q4", "order": 4, "text": "Qu'est-ce qui distingue ces deux resultats ?", "labels": ["Parametres identiques", "Parametres different", "IA vs CFD"], "correct_option": 0, "time_limit_s": 30, "_todo": "parametres identiques, Seed" },
-    { "id": "q5", "order": 5, "text": "Question bonus", "labels": ["Oui", "Non"], "correct_option": 0, "time_limit_s": 30, "_todo": "TBC si on a le temps" }
+    { "id": "q0", "order": 0, "text": "Lequel de ces deux visages est généré par une IA ?", "labels": ["A", "B", "Les deux", "Aucun"], "correct_option": 3, "time_limit_s": 30, "_todo": "ATTENTION : reformulation inversee (IA au lieu de reel). Verifier si la reponse reste Aucun (3) ou devient Les deux (2)." },
+    { "id": "q1", "order": 1, "text": "Ces deux critères ont été expliqués par Copilot. Lequel n'existe pas ?", "labels": ["A", "B", "Les deux", "Aucun"], "correct_option": 0, "time_limit_s": 30, "_todo": "reponse A, critere fictif" },
+    { "id": "q2", "order": 2, "text": "Lequel de ces deux champs de pression est issu d'un modèle IA ?", "labels": ["A", "B", "Les deux", "Aucun"], "correct_option": 0, "time_limit_s": 30, "_todo": "reponse A" },
+    { "id": "q3", "order": 3, "text": "A quel point ces deux champs diffèrent-ils localement ?", "labels": ["~1%", "~5%", "~15%", "~25%"], "correct_option": 3, "time_limit_s": 30, "_todo": "reponse ~25%" },
+    { "id": "q4", "order": 4, "text": "Comment expliquer les différences entre ces deux résultats ?", "labels": ["Parametres identiques", "Parametres different", "IA vs CFD"], "correct_option": 0, "time_limit_s": 30, "_todo": "reponse parametres identiques, seed" }
   ]
 }
