@@ -29,11 +29,19 @@ PHASE_NAMES = {
 
 
 class QuizService:
-    def __init__(self, quiz: Quiz, clock: Clock, hub: Hub, labels: dict[str, list[str]]) -> None:
+    def __init__(
+        self,
+        quiz: Quiz,
+        clock: Clock,
+        hub: Hub,
+        labels: dict[str, list[str]],
+        texts: dict[str, str] | None = None,
+    ) -> None:
         self._quiz = quiz
         self._clock = clock
         self._hub = hub
         self._labels = labels
+        self._texts = texts or {}
 
     # --- commandes participants ---
 
@@ -96,6 +104,7 @@ class QuizService:
         return {
             "index": question.order,
             "count": len(self._quiz.questions),
+            "text": self._texts.get(question.id, ""),
             "labels": self._labels[question.id],
             "time_limit_s": question.time_limit_s,
             "remaining_s": remaining,

@@ -27,6 +27,7 @@ class QuizConfig:
     questions: list[Question]
     teams: list[Team]
     labels: dict[str, list[str]]  # question_id -> labels des options
+    texts: dict[str, str]  # question_id -> enonce court, optionnel
 
 
 def load_config(path: str | Path) -> QuizConfig:
@@ -36,6 +37,7 @@ def load_config(path: str | Path) -> QuizConfig:
 
     questions: list[Question] = []
     labels: dict[str, list[str]] = {}
+    texts: dict[str, str] = {}
     for q in raw["questions"]:
         qlabels = list(q["labels"])
         questions.append(
@@ -48,7 +50,8 @@ def load_config(path: str | Path) -> QuizConfig:
             )
         )
         labels[q["id"]] = qlabels
+        texts[q["id"]] = str(q.get("text", ""))
 
     return QuizConfig(
-        quiz_id=raw["quiz_id"], questions=questions, teams=teams, labels=labels
+        quiz_id=raw["quiz_id"], questions=questions, teams=teams, labels=labels, texts=texts
     )

@@ -33,7 +33,7 @@ def client(tmp_path) -> TestClient:
             {"id": "stator", "name": "Stator"},
         ],
         "questions": [
-            {"id": "q0", "order": 0, "labels": ["A", "B", "C"],
+            {"id": "q0", "order": 0, "text": "Enonce zero", "labels": ["A", "B", "C"],
              "correct_option": 1, "time_limit_s": 20},
             {"id": "q1", "order": 1, "labels": ["OUI", "NON"],
              "correct_option": 1, "time_limit_s": 20},
@@ -45,7 +45,7 @@ def client(tmp_path) -> TestClient:
     clock = FakeClock()
     quiz = Quiz(config.quiz_id, config.questions, config.teams, clock, BinaryScore())
     hub = Hub()
-    service = QuizService(quiz, clock, hub, config.labels)
+    service = QuizService(quiz, clock, hub, config.labels, config.texts)
     app = create_app(service, hub, secret_key="s3cret", host_key=HOST_KEY)
     return TestClient(app)
 
@@ -207,6 +207,15 @@ def test_join_apres_finished_refuse(client: TestClient) -> None:
     _host(client, "finish")
     r = client.post("/api/join", json={"nickname": "Tard", "team_id": "rotor"})
     assert r.status_code == 409
+
+
+def test_texte_question_affiche(client: TestClient) -> None:
+    _join(client, "Alice", "rotor")
+    _host(client, "open")
+    st = client.get("/api/state").json()
+    assert st["question"]["text"] == "Enonce zero"
+    p = client.get("/api/present-state").json()
+    assert p["question"]["text"] == "Enonce zero"
 
 
 def test_qr_svg(client: TestClient) -> None:

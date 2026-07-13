@@ -35,7 +35,7 @@ _BASE_CSS = """
   table { border-collapse:collapse; width:100%; }
   td, th { text-align:left; padding:.3rem .5rem; border-bottom:1px solid #2c3540; }
   .r { text-align:right; }
-  .legend { margin:.5rem 0 1rem; font-size:1rem; line-height:1.9; }
+  .qtext { font-size:1.15rem; font-weight:700; margin:.5rem 0 .9rem; line-height:1.3; }
   .lg { margin-right:1.4rem; white-space:nowrap; }
   .sw { display:inline-block; width:1rem; height:1rem; border-radius:3px; vertical-align:middle; margin-right:.35rem; }
   .drow { display:flex; align-items:center; gap:.7rem; margin:.5rem 0; }
@@ -137,6 +137,7 @@ function render(s){{
     var q = s.question;
     var html = head + '<p>Question <b>'+(q.index+1)+'/'+q.count+'</b>' +
       ' . <span id="cd" class="warn"></span></p>';
+    if(q.text){{ html += '<p class="qtext">'+esc(q.text)+'</p>'; }}
     if(s.voted){{
       html += '<p class="big ok">Vote enregistre.</p><p class="mut">Reponse verrouillee. Regarde l\\'ecran.</p>';
     }} else {{
@@ -319,6 +320,7 @@ function render(s){{
     var q=s.question;
     el.innerHTML =
       '<h1>Question '+(q.index+1)+' / '+q.count+'</h1>' +
+      (q.text ? '<p class="qtext" style="font-size:1.6rem">'+esc(q.text)+'</p>' : '') +
       '<p class="mut">Repondez sur vos telephones.</p>' +
       '<p id="votesLine">Votes : <b class="huge">'+s.votes+'</b> / '+s.participants+'</p>';
     return;

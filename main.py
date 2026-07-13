@@ -49,5 +49,5 @@ quiz = Quiz(
     scoring=BinaryScore(),
 )
 hub = Hub()
-service = QuizService(quiz, clock, hub, config.labels)
+service = QuizService(quiz, clock, hub, config.labels, config.texts)
 app = create_app(service, hub, secret_key=secret_key, host_key=host_key)
